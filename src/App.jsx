@@ -1,0 +1,190 @@
+import { useState, useEffect } from "react";
+import { UNITS, EXAM } from "./data/curriculum.js";
+import { loadState, saveState, postExamToLeaderboard } from "./lib/storage.js";
+import { pickQuestions, buildExam, recordAnswer } from "./lib/engine.js";
+import Dashboard from "./components/Dashboard.jsx";
+import Curriculum from "./components/Curriculum.jsx";
+import Scenarios from "./components/Scenarios.jsx";
+import PodView from "./components/PodView.jsx";
+import Quiz from "./components/Quiz.jsx";
+import Results from "./components/Results.jsx";
+
+const TABS = [
+  ["home", "Deck"], ["curriculum", "Curriculum"],
+  ["scenarios", "Scenarios"], ["drill", "Drill"], ["pod", "Pod"],
+];
+
+export default function App() {
+  const [state, setState] = useState(null);
+  const [tab, setTab] = useState("home");
+  const [session, setSession] = useState(null);   // { questions, mode, title, minutes, unitId }
+  const [result, setResult] = useState(null);     // { result, questions, isExam }
+
+  useEffect(() => { loadState().then(setState); }, []);
+  if (!state) return <div className="app" style={{ paddingTop: 80 }}><p className="muted mono">Loading your progress…</p></div>;
+
+  const update = (patch) => setState((s) => { const n = { ...s, ...patch }; saveState(n); return n; });
+
+  // ---- launching study sessions ----
+  function startUnit(u) {
+    if (u.isLab) return;            // labs are marked done via toggleUnit, not quizzed
+    if (u.isExam) return startExam(u.id);
+    const qs = pickQuestions(u.quiz, state, u.quiz.count);
+    setSession({ questions: qs, mode: "practice", title: u.title || u.topic, unitId: u.id });
+    setResult(null);
+  }
+  function toggleUnit(id) {
+    setState((s) => {
+      const has = s.completedUnits.includes(id);
+      const n = { ...s, completedUnits: has ? s.completedUnits.filter((x) => x !== id) : [...s.completedUnits, id] };
+      saveState(n); return n;
+    });
+  }
+  function startScenario(n) {
+    const qs = pickQuestions({ scenario: n }, state, 10);
+    setSession({ questions: qs, mode: "practice", title: `Scenario ${n} drill` });
+    setResult(null);
+  }
+  function startDrill(count = 15) {
+    const qs = pickQuestions({ weak: true }, state, count);
+    setSession({ questions: qs, mode: "practice", title: "Weak-spot drill" });
+    setResult(null); setTab("drill");
+  }
+  function startMixed(count = 20) {
+    const qs = pickQuestions({ mixed: true }, state, count);
+    setSession({ questions: qs, mode: "practice", title: "Mixed quiz" });
+    setResult(null);
+  }
+  function startExam(unitId) {
+    const qs = buildExam(state);
+    setSession({ questions: qs, mode: "exam", title: "Mock Exam", minutes: EXAM.minutes, unitId });
+    setResult(null);
+  }
+
+  // ---- answer + completion ----
+  function handleAnswer(q, correct) { setState((s) => { const n = recordAnswer(s, q, correct); saveState(n); return n; }); }
+
+  function handleComplete(res, questions) {
+    setState((s) => {
+      const n = { ...s };
+      if (session.unitId && !n.completedUnits.includes(session.unitId))
+        n.completedUnits = [...n.completedUnits, session.unitId];
+      if (session.mode === "exam") {
+        n.examHistory = [...n.examHistory, { date: new Date().toISOString(), scaled: res.scaled, correct: res.correct, total: res.total, byDomain: res.byDomain }];
+        postExamToLeaderboard(n.name, res.scaled, res.correct, res.total);
+      }
+      saveState(n); return n;
+    });
+    setResult({ result: res, questions, isExam: session.mode === "exam" });
+    setSession(null);
+  }
+
+  function reviewMisses() {
+    const { result: r, questions } = result;
+    const misses = questions.filter((q, idx) => r.answers[idx] !== q.correct);
+    setSession({ questions: misses, mode: "practice", title: "Reviewing your misses" });
+    setResult(null);
+  }
+
+  function importState(obj) {
+    const n = {
+      ...state, ...obj,
+      completedUnits: Array.isArray(obj.completedUnits) ? obj.completedUnits : [],
+      domainStats: obj.domainStats || {},
+      qHistory: obj.qHistory || {},
+      examHistory: Array.isArray(obj.examHistory) ? obj.examHistory : [],
+    };
+    setState(n); saveState(n);
+  }
+
+  // ---- render ----
+  const inSession = session || result;
+
+  return (
+    <div className="app">
+      <div className="topbar">
+        <div className="brand">
+          <span className="mark">SAEP</span>
+          <div>
+            <h1>System Architect Exam Pro</h1>
+            <div className="sub">Claude Certified Architect · Foundations</div>
+          </div>
+        </div>
+        {!inSession && (
+          <nav className="nav">
+            {TABS.map(([k, label]) => (
+              <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{label}</button>
+            ))}
+          </nav>
+        )}
+      </div>
+
+      {/* Onboarding: name */}
+      {!state.name && !inSession && (
+        <div className="callout rise" style={{ marginBottom: 22 }}>
+          <div className="row">
+            <span>Quick — what should the pod call you?</span>
+            <input className="input" style={{ maxWidth: 240 }} placeholder="Your name"
+              onKeyDown={(e) => { if (e.key === "Enter" && e.target.value.trim()) update({ name: e.target.value.trim() }); }} />
+            <span className="muted mono" style={{ fontSize: 11 }}>press enter</span>
+          </div>
+        </div>
+      )}
+
+      {/* Active quiz / exam */}
+      {session && (
+        <Quiz {...session} onAnswer={handleAnswer} onComplete={handleComplete}
+          onExit={() => { setSession(null); }} />
+      )}
+
+      {/* Results */}
+      {result && (
+        <Results result={result.result} questions={result.questions} isExam={result.isExam}
+          onReviewMisses={reviewMisses} onDone={() => setResult(null)} />
+      )}
+
+      {/* Tabs */}
+      {!inSession && tab === "home" &&
+        <Dashboard state={state} setTab={setTab} setTarget={(d) => update({ examTarget: d })} />}
+      {!inSession && tab === "curriculum" && <Curriculum state={state} onStartUnit={startUnit} onToggleUnit={toggleUnit} />}
+      {!inSession && tab === "scenarios" && <Scenarios onDrill={startScenario} />}
+      {!inSession && tab === "drill" && (
+        <div className="rise">
+          <div className="eyebrow">Phase 3 · no new learning</div>
+          <div className="h2">Drill</div>
+          <p className="lead">Full timed mock exams scored to {EXAM.passScaled}, targeted weak-spot drills, and broad mixed sets. This is the last-10-days mode.</p>
+          <div className="grid" style={{ marginTop: 22, gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
+            <div className="panel">
+              <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600 }}>Mock exam</div>
+              <p className="muted" style={{ fontSize: 14, margin: "6px 0 14px" }}>60 questions, {EXAM.minutes} min, weighted exactly like the real domains. Scored on the 100–1000 scale.</p>
+              <button className="btn" onClick={() => startExam()}>Start mock exam</button>
+            </div>
+            <div className="panel">
+              <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600 }}>Weak-spot drill</div>
+              <p className="muted" style={{ fontSize: 14, margin: "6px 0 14px" }}>20 questions pulled from your weakest domain, with explanations on every answer.</p>
+              <button className="btn ghost" onClick={() => startDrill(20)}>Drill weak spot</button>
+            </div>
+            <div className="panel">
+              <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 600 }}>Mixed set</div>
+              <p className="muted" style={{ fontSize: 14, margin: "6px 0 14px" }}>20 questions across all five domains, prioritizing items you haven't seen or missed.</p>
+              <button className="btn ghost" onClick={() => startMixed(20)}>Start mixed set</button>
+            </div>
+          </div>
+          {state.examHistory.length > 0 && (
+            <div className="panel" style={{ marginTop: 18 }}>
+              <div className="eyebrow" style={{ marginBottom: 12 }}>Mock exam history</div>
+              {state.examHistory.slice().reverse().map((e, i) => (
+                <div className="lbrow" key={i}>
+                  <span className="rk" style={{ fontSize: 13 }}>{new Date(e.date).toLocaleDateString()}</span>
+                  <span className="muted mono" style={{ fontSize: 12 }}>{e.correct}/{e.total}</span>
+                  <span className="sc" style={{ color: e.scaled >= EXAM.passScaled ? "var(--good)" : "var(--bad)" }}>{e.scaled}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {!inSession && tab === "pod" && <PodView state={state} onImport={importState} />}
+    </div>
+  );
+}

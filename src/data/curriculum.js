@@ -1,0 +1,132 @@
+// System Architect Exam Pro — curriculum.
+// Mirrors the OFFICIAL 4-week pod plan exactly (every week, every day),
+// including the hands-on Labs and Anthropic Academy courses as tracked items.
+// Progress is by unit (≈ the listed time), so you can flex across your real days.
+
+export const DOMAINS = {
+  1: { name: "Agent Architecture & Orchestration", weight: 27, color: "var(--d1)" },
+  2: { name: "Tool Design & MCP Integration", weight: 18, color: "var(--d2)" },
+  3: { name: "Claude Code Configuration & Workflows", weight: 20, color: "var(--d3)" },
+  4: { name: "Prompt Engineering & Structured Output", weight: 20, color: "var(--d4)" },
+  5: { name: "Context Management & Reliability", weight: 15, color: "var(--d5)" },
+};
+
+export const SCENARIOS = {
+  1: { name: "Customer Support Agent", blurb: "Returns, billing, account issues via MCP tools. Target 80%+ first-contact resolution with correct escalation. Core idea: deterministic preconditions beat prompt-only fixes for required tool sequences." },
+  2: { name: "Code Generation with Claude Code", blurb: "Generation, refactor, debug, docs via custom slash commands + CLAUDE.md. Know when to use planning mode." },
+  3: { name: "Multi-Agent Research System", blurb: "Coordinator delegates to specialist subagents (research, analysis, synthesis). Reports must carry citations + provenance." },
+  4: { name: "Developer Productivity Tools", blurb: "Explore unfamiliar codebases; built-in tools (Read/Write/Bash/Grep/Glob) + MCP. Drilled via Domain 2 & 3 questions." },
+  5: { name: "Claude Code for CI/CD", blurb: "Automated review, test gen, PR feedback in pipelines. Prompts must minimize false positives. Headless mode." },
+  6: { name: "Structured Data Extraction", blurb: "Extract from unstructured docs, validate with JSON schemas, handle edge cases. Drilled via Domain 4 questions." },
+  7: { name: "Conversational AI Patterns", blurb: "Multi-turn context mgmt, instruction persistence, memory strategy, ambiguity handling." },
+  8: { name: "Agentic AI Tools", blurb: "Reported on the exam but not yet documented in the community guide. Drilled via mixed Domain-1 questions." },
+};
+
+export const WEEKS = {
+  1: { icon: "📘", title: "Agentic Architecture & Orchestration", weight: 27, domain: 1,
+       blurb: "The heaviest domain on the exam. Master this and you're nearly a third of the way home." },
+  2: { icon: "🔧", title: "Tool Design & MCP Integration", weight: 18, domain: 2,
+       blurb: "Build the bridges Claude walks across — MCP servers, schemas, the isError flag, resources." },
+  3: { icon: "💻", title: "Claude Code Configuration & Workflows", weight: 20, domain: 3,
+       blurb: "The cockpit — CLAUDE.md hierarchy, slash commands, plan mode, sessions, the Agent SDK." },
+  4: { icon: "✍️", title: "Prompt Engineering + Context Management + EXAM", weight: 35, domain: 4,
+       blurb: "The craft and the summit, then three timed mock exams into exam day." },
+};
+
+// type per unit: quiz {domain|scenario|mixed|weak, count} | isExam | isLab | academy
+export const UNITS = [
+  // ---------- WEEK 1 ----------
+  { id: "w1-mon", week: 1, day: "Mon", topic: "Messages API Deep Dive", time: "1.5 hr", domain: 1,
+    activity: "Anthropic Academy: Building with the Claude API. Request structure, roles, stop_reason, context window.",
+    reading: "Study Guide §1.1–1.5", academy: "Building with the Claude API", quiz: { domain: 1, count: 8 } },
+  { id: "w1-tue", week: 1, day: "Tue", topic: "Agentic Loop Design", time: "1 hr", domain: 1,
+    activity: "Agentic loop lifecycle: stop_reason handling, appending tool results.",
+    reading: "Study Guide §1.3, §3.1", quiz: { domain: 1, count: 8 } },
+  { id: "w1-wed", week: 1, day: "Wed", topic: "Anti-Patterns", time: "1 hr", domain: 1,
+    activity: "The 3 anti-patterns: natural-language termination, arbitrary iteration caps, text-as-completion.",
+    reading: "Study Guide §3.1, Domain 1.1", quiz: { domain: 1, count: 8 } },
+  { id: "w1-thu", week: 1, day: "Thu", topic: "Decision Architecture", time: "1 hr", domain: 1,
+    activity: "Model-driven vs pre-configured decision trees — when to hand control to the model vs hard-code it.",
+    reading: "Study Guide Domain 1.1", quiz: { domain: 1, count: 8 } },
+  { id: "w1-fri", week: 1, day: "Fri", topic: "Subagents", time: "1.5 hr", domain: 1,
+    activity: "Anthropic Academy: Introduction to Subagents. Hub-and-spoke, the Task tool, context passing.",
+    reading: "Study Guide §3.2–3.4", academy: "Introduction to Subagents", quiz: { domain: 1, count: 8 } },
+  { id: "w1-sat", week: 1, day: "Sat", topic: "Lab", time: "2 hr", domain: 1, isLab: true,
+    activity: "Build a multi-step research agent with error recovery.",
+    lab: "Build a coordinator that delegates to subagents and recovers from a failed tool call. Reference patterns in the Anthropic Cookbook.",
+    link: "https://github.com/anthropics/anthropic-cookbook" },
+  { id: "w1-sun", week: 1, day: "Sun", topic: "Review + Check-in", time: "1 hr",
+    activity: "Practice questions across the week, then post your pod check-in (see the Pod tab).",
+    quiz: { mixed: true, count: 12 } },
+
+  // ---------- WEEK 2 ----------
+  { id: "w2-mon", week: 2, day: "Mon", topic: "MCP Foundations", time: "1.5 hr", domain: 2,
+    activity: "Anthropic Academy: Introduction to Model Context Protocol. What MCP is, servers, configuration.",
+    reading: "Study Guide §4.1–4.3", academy: "Introduction to Model Context Protocol", quiz: { domain: 2, count: 8 } },
+  { id: "w2-tue", week: 2, day: "Tue", topic: "MCP Architecture", time: "1 hr", domain: 2,
+    activity: "Tools vs resources vs prompts. The isError flag and structured error handling.",
+    reading: "Study Guide §4.4", quiz: { domain: 2, count: 8 } },
+  { id: "w2-wed", week: 2, day: "Wed", topic: "JSON Schema", time: "1 hr", domain: 2,
+    activity: "JSON schema for function definitions. Practice writing tool schemas.",
+    reading: "Study Guide §2.4", quiz: { domain: 2, count: 8 } },
+  { id: "w2-thu", week: 2, day: "Thu", topic: "Tool Best Practices", time: "1 hr", domain: 2,
+    activity: "Tool naming, parameter design, and when Claude actually calls a tool.",
+    reading: "Study Guide Domain 2.1", quiz: { domain: 2, count: 8 } },
+  { id: "w2-fri", week: 2, day: "Fri", topic: "Resource Types", time: "1 hr", domain: 2,
+    activity: "MCP resource types, access patterns, server lifecycle.",
+    reading: "Study Guide §4.5", quiz: { domain: 2, count: 8 } },
+  { id: "w2-sat", week: 2, day: "Sat", topic: "Lab", time: "2 hr", domain: 2, isLab: true,
+    activity: "Build a custom MCP server with 3+ tools.",
+    lab: "Stand up an MCP server exposing at least 3 tools with proper JSON schemas and isError handling, then connect it to Claude Code.",
+    link: "https://modelcontextprotocol.io/" },
+  { id: "w2-sun", week: 2, day: "Sun", topic: "Review + Check-in", time: "1 hr",
+    activity: "Practice questions across the week, then post your pod check-in.",
+    quiz: { mixed: true, count: 12 } },
+
+  // ---------- WEEK 3 ----------
+  { id: "w3-mon", week: 3, day: "Mon", topic: "CLAUDE.md Deep Dive", time: "1.5 hr", domain: 3,
+    activity: "Configuration hierarchy, path scoping, YAML frontmatter, @path imports, .claude/rules/.",
+    reading: "Study Guide §5.1–5.3", quiz: { domain: 3, count: 8 } },
+  { id: "w3-tue", week: 3, day: "Tue", topic: "Slash Commands", time: "1 hr", domain: 3,
+    activity: ".claude/commands/ directory and custom command creation (where the file lives = who gets it).",
+    reading: "Study Guide §5.4–5.5", quiz: { domain: 3, count: 8 } },
+  { id: "w3-wed", week: 3, day: "Wed", topic: "Plan Mode & Sessions", time: "1 hr", domain: 3,
+    activity: "Plan mode vs direct execution, /memory, /compact, fork_session and session management.",
+    reading: "Study Guide §5.6–5.8, §5.10", quiz: { domain: 3, count: 8 } },
+  { id: "w3-thu", week: 3, day: "Thu", topic: "Agent SDK", time: "1 hr", domain: 1,
+    activity: "Agent SDK configuration, subagent patterns, lifecycle hooks (intercept/normalize tool calls).",
+    reading: "Study Guide §3.2, §3.5", quiz: { domain: 1, count: 8 } },
+  { id: "w3-fri", week: 3, day: "Fri", topic: "Workflow Patterns", time: "1 hr", domain: 3,
+    activity: "Real-world Claude Code workflow patterns and iterative refinement.",
+    reading: "Study Guide Domain 3.5", quiz: { domain: 3, count: 8 } },
+  { id: "w3-sat", week: 3, day: "Sat", topic: "Lab", time: "2 hr", domain: 3, isLab: true,
+    activity: "Set up a full Claude Code project with tiered CLAUDE.md and custom commands.",
+    lab: "Building and deploying THIS app in Claude Code already covers most of this lab — it has a tiered CLAUDE.md and ships to Netlify. Add a custom /quiz or /review slash command to finish it off.",
+    link: "https://code.claude.com/docs/en/memory" },
+  { id: "w3-sun", week: 3, day: "Sun", topic: "Review + Check-in", time: "1 hr",
+    activity: "Practice questions across the week, then post your pod check-in.",
+    quiz: { mixed: true, count: 12 } },
+
+  // ---------- WEEK 4 ----------
+  { id: "w4-mon", week: 4, day: "Mon", topic: "Prompt Engineering", time: "1.5 hr", domain: 4,
+    activity: "XML tags, chain-of-thought, few-shot patterns, system prompts, explicit criteria vs vague.",
+    reading: "Study Guide §6.1–6.4", quiz: { domain: 4, count: 8 } },
+  { id: "w4-tue", week: 4, day: "Tue", topic: "Structured Output", time: "1 hr", domain: 4,
+    activity: "JSON output via tool_use, data extraction, format enforcement, validation + retry-with-feedback.",
+    reading: "Study Guide §2.4, §6.5–6.6", quiz: { domain: 4, count: 8 } },
+  { id: "w4-wed", week: 4, day: "Wed", topic: "Context Management", time: "1.5 hr", domain: 5,
+    activity: "Context windows, token management, caching, trimming tool results, scratchpads, reliability.",
+    reading: "Study Guide Ch.11", quiz: { domain: 5, count: 8 } },
+  { id: "w4-thu", week: 4, day: "Thu", topic: "Error Handling", time: "1 hr", domain: 5,
+    activity: "Retry strategies, graceful degradation, escalation, provenance, production patterns.",
+    reading: "Study Guide Ch.9, Ch.10, Ch.12", quiz: { domain: 5, count: 8 } },
+  { id: "w4-fri", week: 4, day: "Fri", topic: "Practice Exam #1", time: "2 hr", isExam: true,
+    activity: "Full 60-question timed exam, weighted like the real domains. Review every wrong answer." },
+  { id: "w4-sat", week: 4, day: "Sat", topic: "Practice Exam #2", time: "2 hr", isExam: true,
+    activity: "Second full exam. Then hammer your weakest domains in the Drill tab." },
+  { id: "w4-sun", week: 4, day: "Sun", topic: "EXAM DAY", time: "1.5 hr",
+    activity: "Light review, final pod check-in, then take the real exam. You've trained for this.",
+    quiz: { mixed: true, count: 10 } },
+];
+
+export const EXAM = { questions: 60, minutes: 120, passScaled: 720 };
