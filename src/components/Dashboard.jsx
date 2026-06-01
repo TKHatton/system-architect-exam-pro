@@ -34,7 +34,7 @@ export default function Dashboard({ state, setTab, setTarget }) {
         <div className="tile">
           <div className="k">Est. score</div>
           <div className="v" style={{ color: est == null ? "var(--muted)" : est >= EXAM.passScaled ? "var(--good)" : "var(--accent)" }}>
-            {est == null ? "—" : est}
+            {est == null ? "N/A" : est}
           </div>
           <div className="muted mono" style={{ fontSize: 10 }}>target {EXAM.passScaled}</div>
         </div>
@@ -49,7 +49,7 @@ export default function Dashboard({ state, setTab, setTarget }) {
         <div className="tile">
           <div className="k">Days to exam</div>
           <div className="v" style={{ color: daysLeft != null && daysLeft < 7 ? "var(--accent)" : "var(--ink)" }}>
-            {daysLeft == null ? "—" : daysLeft}
+            {daysLeft == null ? "N/A" : daysLeft}
           </div>
           {state.examTarget && <div className="muted mono" style={{ fontSize: 10 }}>{new Date(state.examTarget).toLocaleDateString()}</div>}
         </div>
@@ -78,7 +78,7 @@ export default function Dashboard({ state, setTab, setTarget }) {
                   <span style={{ width: `${acc[d] || 3}%`, background: info.color, opacity: acc[d] == null ? .25 : 1 }} />
                 </div>
               </div>
-              <span className="pct">{acc[d] == null ? "—" : `${acc[d]}%`}</span>
+              <span className="pct">{acc[d] == null ? "N/A" : `${acc[d]}%`}</span>
             </div>
           ))}
         </div>

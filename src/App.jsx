@@ -19,8 +19,16 @@ export default function App() {
   const [tab, setTab] = useState("home");
   const [session, setSession] = useState(null);   // { questions, mode, title, minutes, unitId }
   const [result, setResult] = useState(null);     // { result, questions, isExam }
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
 
   useEffect(() => { loadState().then(setState); }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === "light" ? "dark" : "light");
   if (!state) return <div className="app" style={{ paddingTop: 80 }}><p className="muted mono">Loading your progress…</p></div>;
 
   const update = (patch) => setState((s) => { const n = { ...s, ...patch }; saveState(n); return n; });
@@ -110,13 +118,23 @@ export default function App() {
             <div className="sub">Claude Certified Architect · Foundations</div>
           </div>
         </div>
-        {!inSession && (
-          <nav className="nav">
-            {TABS.map(([k, label]) => (
-              <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{label}</button>
-            ))}
-          </nav>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {!inSession && (
+            <nav className="nav">
+              {TABS.map(([k, label]) => (
+                <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{label}</button>
+              ))}
+            </nav>
+          )}
+          <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
+            {theme === "light" ? (
+              <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            ) : (
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            )}
+            <span>{theme === "light" ? "Dark" : "Light"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Onboarding: name */}
@@ -185,6 +203,13 @@ export default function App() {
         </div>
       )}
       {!inSession && tab === "pod" && <PodView state={state} onImport={importState} />}
+
+      {/* Footer */}
+      {!inSession && (
+        <footer className="footer">
+          Created with care by <a href="https://linkedin.com/in/lenisekenney" target="_blank" rel="noopener noreferrer">Lenise Kenney</a>
+        </footer>
+      )}
     </div>
   );
 }
