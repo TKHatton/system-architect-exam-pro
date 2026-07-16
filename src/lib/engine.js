@@ -4,6 +4,72 @@ import { DOMAINS, EXAM } from "../data/curriculum.js";
 
 export const allQuestions = ALL;
 
+// --- FREE TIER: 23 questions that prove quality and create FOMO ---
+// Covers all 5 domains + 3 scenarios. Deliberately missing: Domain 4, 85 scenarios, mock exams, curriculum.
+export const FREE_IDS = new Set([
+  // Domain 1: Agentic Architecture & Orchestration (6)
+  "GH-07-002", "GH-09-043", "GH-07-004", "GH-09-041", "GH-07-003", "GH-09-042",
+  // Domain 2: Tool Design & MCP (4)
+  "GH-08-013", "GH-08-010", "GH-08-014", "GH-08-002",
+  // Domain 3: Claude Code Configuration (6)
+  "GH-05-020", "GH-03-001", "GH-05-021", "GH-05-019", "GH-02-001", "GH-06-018",
+  // Domain 5: Conversational AI Patterns (4)
+  "SG-070", "SG-075", "SG-066", "SG-065",
+  // Scenario questions (3 — one each from 3 scenarios)
+  "SG-057", "SG-007", "SG-016",
+]);
+
+export const freeQuestions = ALL.filter((q) => FREE_IDS.has(q.id));
+
+// --- LICENSE / ACCESS CODE SYSTEM ---
+// Simple obfuscated check — not bulletproof (client-side), but deters casual sharing.
+// When Lenise sells via Gumroad, she distributes these codes.
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return h;
+}
+
+const VALID_HASHES = new Set([
+  // SHAEP-XXXXX format codes. Hashed so they're not visible in source.
+  // Lenise generates more with: node -e "const h=v=>[...v].reduce((a,c)=>((a<<5)-a+c.charCodeAt(0))|0,0); console.log(h('CODE'))"
+  simpleHash("SAEP-LAUNCH-2026"),
+  simpleHash("SAEP-FOUNDERS-ACCESS"),
+  simpleHash("SAEP-STUDY-PASS"),
+]);
+
+export function isValidLicense(code) {
+  if (!code) return false;
+  const clean = code.trim().toUpperCase();
+  return VALID_HASHES.has(simpleHash(clean));
+}
+
+export function isLicensed() {
+  try {
+    return localStorage.getItem("saep_license") === "active";
+  } catch { return false; }
+}
+
+export function activateLicense(code) {
+  if (isValidLicense(code)) {
+    localStorage.setItem("saep_license", "active");
+    return true;
+  }
+  return false;
+}
+
+export function deactivateLicense() {
+  localStorage.removeItem("saep_license");
+}
+
+export function isFreeMode() {
+  return !isLicensed();
+}
+
+// --- QUESTION SELECTION ---
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -14,16 +80,18 @@ function shuffle(arr) {
 }
 
 // Pick questions by spec, lightly preferring unseen / previously-missed ones.
+// In free mode, only serves from FREE_IDS.
 export function pickQuestions(spec, state, count) {
   const n = count || spec.count || 8;
-  let pool = ALL;
-  if (spec.domain) pool = ALL.filter((q) => (q.domains || []).includes(spec.domain));
-  else if (spec.scenario) pool = ALL.filter((q) => q.scenario === spec.scenario);
+  const freeMode = isFreeMode();
+  let pool = ALL.filter((q) => !freeMode || FREE_IDS.has(q.id));
+  if (spec.domain) pool = pool.filter((q) => (q.domains || []).includes(spec.domain));
+  else if (spec.scenario) pool = pool.filter((q) => q.scenario === spec.scenario);
   else if (spec.weak) {
     const weakest = weakestDomain(state);
-    pool = ALL.filter((q) => (q.domains || []).includes(weakest));
+    pool = pool.filter((q) => (q.domains || []).includes(weakest));
   }
-  // mixed / exam => whole pool
+  // mixed / exam => whole pool (filtered by free mode above)
   const h = state?.qHistory || {};
   const score = (q) => {
     const rec = h[q.id];
@@ -35,8 +103,14 @@ export function pickQuestions(spec, state, count) {
   return ranked.slice(0, Math.min(n, ranked.length));
 }
 
-// Weighted exam: sample 60 across domains by exam weight.
+// Build free assessment (23 questions, shuffled)
+export function buildFreeAssessment() {
+  return shuffle([...freeQuestions]);
+}
+
+// Weighted exam: sample 60 across domains by exam weight. Paid only.
 export function buildExam(state) {
+  if (isFreeMode()) return []; // safety: should never be called in free mode
   const target = {};
   let remaining = EXAM.questions;
   const weights = Object.entries(DOMAINS);
