@@ -5,7 +5,6 @@ import { pickQuestions, buildExam, buildFreeAssessment, recordAnswer, isFreeMode
 import Dashboard from "./components/Dashboard.jsx";
 import Curriculum from "./components/Curriculum.jsx";
 import Scenarios from "./components/Scenarios.jsx";
-import PodView from "./components/PodView.jsx";
 import Quiz from "./components/Quiz.jsx";
 import Results from "./components/Results.jsx";
 import UpgradePrompt from "./components/UpgradePrompt.jsx";
@@ -13,11 +12,11 @@ import UpgradePrompt from "./components/UpgradePrompt.jsx";
 // Tabs differ based on license status
 function getTabs() {
   if (isFreeMode()) {
-    return [["home", "Deck"], ["drill", "Drill"], ["pod", "Pod"]];
+    return [["home", "Deck"], ["drill", "Drill"]];
   }
   return [
     ["home", "Deck"], ["curriculum", "Curriculum"],
-    ["scenarios", "Scenarios"], ["drill", "Drill"], ["pod", "Pod"],
+    ["scenarios", "Scenarios"], ["drill", "Drill"],
   ];
 }
 
@@ -127,6 +126,7 @@ export default function App() {
   }
 
   function importState(obj) {
+    // reserved for future cloud sync — currently local only
     const n = {
       ...state, ...obj,
       completedUnits: Array.isArray(obj.completedUnits) ? obj.completedUnits : [],
@@ -163,7 +163,7 @@ export default function App() {
           )}
           {freeMode && !inSession && (
             <button className="btn" onClick={() => setShowUpgrade(true)} style={{ background: "var(--accent)", color: "#fff" }}>
-              Unlock Full Access
+              Unlock Full Access — $47
             </button>
           )}
           <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
@@ -181,7 +181,7 @@ export default function App() {
       {!state.name && !inSession && (
         <div className="callout rise" style={{ marginBottom: 22 }}>
           <div className="row">
-            <span>Quick — what should the pod call you?</span>
+            <span>Quick — what's your name?</span>
             <input className="input" style={{ maxWidth: 240 }} placeholder="Your name"
               onKeyDown={(e) => { if (e.key === "Enter" && e.target.value.trim()) update({ name: e.target.value.trim() }); }} />
             <span className="muted mono" style={{ fontSize: 11 }}>press enter</span>
@@ -212,14 +212,14 @@ export default function App() {
       {!inSession && tab === "scenarios" && <Scenarios onDrill={startScenario} freeMode={freeMode} onUpgrade={() => setShowUpgrade(true)} />}
       {!inSession && tab === "drill" && (
         <div className="rise">
-          <div className="eyebrow">{freeMode ? "Try the full experience" : "Phase 3 · no new learning"}</div>
+          <div className="eyebrow">{freeMode ? "Try the full experience" : "Last 10 days · no new learning"}</div>
           <div className="h2">{freeMode ? "Unlock Full Practice" : "Drill"}</div>
 
           {freeMode ? (
             <>
               <p className="lead">You've seen what 23 questions can do. The full study system has <b>410 questions</b> across all 5 domains, <b>88 scenario questions</b>, <b>60-question mock exams</b>, and a <b>4-week curriculum</b>.</p>
               <div className="callout" style={{ marginTop: 22 }}>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, marginBottom: 8 }}>Full Access — $67</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 22, fontWeight: 600, marginBottom: 8 }}>Full Access — $47</div>
                 <ul style={{ paddingLeft: 20, margin: "10px 0", lineHeight: 1.8 }}>
                   <li><b>410 practice questions</b> with detailed explanations</li>
                   <li><b>Scenario drills</b> — 88 questions across 8 real-world scenarios</li>
@@ -269,7 +269,6 @@ export default function App() {
           )}
         </div>
       )}
-      {!inSession && tab === "pod" && <PodView state={state} onImport={importState} />}
 
       {/* Footer */}
       {!inSession && (

@@ -26,7 +26,7 @@ export default function Dashboard({ state, setTab, setTarget, freeMode, onFreeAs
 
   return (
     <div className="rise">
-      <div className="eyebrow">Pod {state.pod} · {freeMode ? "Free Assessment" : "4-week sprint"}</div>
+      <div className="eyebrow">{freeMode ? "Free Assessment" : "4-week sprint"}</div>
       <div className="h2">{state.name ? `Onward, ${state.name}.` : "Your command deck."}</div>
 
       {freeMode ? (
@@ -162,7 +162,7 @@ export default function Dashboard({ state, setTab, setTarget, freeMode, onFreeAs
             Unlock 410 questions · 88 scenarios · Mock exams · 4-week curriculum
           </p>
           <button className="btn" onClick={onUpgrade} style={{ background: "var(--accent)", color: "#fff" }}>
-            Unlock Full Access — $67
+            Unlock Full Access — $47
           </button>
         </div>
       )}

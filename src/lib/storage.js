@@ -22,7 +22,7 @@ export function getUserId() {
 
 const blank = () => ({
   name: "",
-  pod: "Epsilon",
+  pod: null,
   completedUnits: [],
   // per-domain stats: { [domain]: { seen, correct } }
   domainStats: {},
@@ -69,8 +69,7 @@ export async function postExamToLeaderboard(name, scaled, correct, total) {
   if (!hasCloud) return;
   try {
     await sb.from("leaderboard").insert({
-      user_id: getUserId(), name: name || "Anonymous Architect",
-      pod: "Epsilon", scaled, correct, total,
+      user_id: getUserId(), name: name || "Anonymous Architect", scaled, correct, total
     });
   } catch (e) { console.warn("Leaderboard post failed:", e.message); }
 }

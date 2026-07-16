@@ -56,7 +56,7 @@ export const UNITS = [
     lab: "Build a coordinator that delegates to subagents and recovers from a failed tool call. Reference patterns in the Anthropic Cookbook.",
     link: "https://github.com/anthropics/anthropic-cookbook" },
   { id: "w1-sun", week: 1, day: "Sun", topic: "Review + Check-in", time: "1 hr",
-    activity: "Practice questions across the week, then post your pod check-in (see the Pod tab).",
+    activity: "Practice questions across the week, then review your progress.",
     quiz: { mixed: true, count: 12 } },
 
   // ---------- WEEK 2 ----------
@@ -80,7 +80,7 @@ export const UNITS = [
     lab: "Stand up an MCP server exposing at least 3 tools with proper JSON schemas and isError handling, then connect it to Claude Code.",
     link: "https://modelcontextprotocol.io/" },
   { id: "w2-sun", week: 2, day: "Sun", topic: "Review + Check-in", time: "1 hr",
-    activity: "Practice questions across the week, then post your pod check-in.",
+    activity: "Practice questions across the week, then review your progress.",
     quiz: { mixed: true, count: 12 } },
 
   // ---------- WEEK 3 ----------
@@ -104,7 +104,7 @@ export const UNITS = [
     lab: "Building and deploying THIS app in Claude Code already covers most of this lab — it has a tiered CLAUDE.md and ships to Netlify. Add a custom /quiz or /review slash command to finish it off.",
     link: "https://code.claude.com/docs/en/memory" },
   { id: "w3-sun", week: 3, day: "Sun", topic: "Review + Check-in", time: "1 hr",
-    activity: "Practice questions across the week, then post your pod check-in.",
+    activity: "Practice questions across the week, then review your progress.",
     quiz: { mixed: true, count: 12 } },
 
   // ---------- WEEK 4 ----------
@@ -125,7 +125,7 @@ export const UNITS = [
   { id: "w4-sat", week: 4, day: "Sat", topic: "Practice Exam #2", time: "2 hr", isExam: true,
     activity: "Second full exam. Then hammer your weakest domains in the Drill tab." },
   { id: "w4-sun", week: 4, day: "Sun", topic: "EXAM DAY", time: "1.5 hr",
-    activity: "Light review, final pod check-in, then take the real exam. You've trained for this.",
+    activity: "Light review, final progress check, then take the real exam. You've trained for this.",
     quiz: { mixed: true, count: 10 } },
 ];
 

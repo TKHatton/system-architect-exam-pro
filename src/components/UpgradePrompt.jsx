@@ -27,7 +27,7 @@ export default function UpgradePrompt({ onClose, onActivate }) {
             <h2 style={{ fontFamily: "var(--serif)", fontSize: 28, margin: "0 0 16px" }}>Unlock the Complete Study System</h2>
 
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 48, fontWeight: 700, color: "var(--accent)", lineHeight: 1 }}>$67</div>
+              <div style={{ fontSize: 48, fontWeight: 700, color: "var(--accent)", lineHeight: 1 }}>$47</div>
               <div className="muted" style={{ fontSize: 14, marginTop: 4 }}>One-time purchase · Lifetime access</div>
             </div>
 

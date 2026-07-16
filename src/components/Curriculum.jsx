@@ -12,7 +12,7 @@ export default function Curriculum({ state, onStartUnit, onToggleUnit, onUpgrade
       <div className="h2">Curriculum {freeMode && <span className="badge badge-locked">LOCKED</span>}</div>
       <p className="lead">{freeMode
         ? "The 4-week curriculum is locked in free mode. Unlock full access to see daily tasks, structured study plan, and track your progress."
-        : "This mirrors your pod's weekly plan exactly — every day, plus the hands-on Labs and Anthropic Academy courses. Progress is by unit, so a free day = 2–3 units, a busy Wednesday = one. Each Sunday ends with a check-in."}</p>
+        : "Built from the official study plan — every day mapped, labs included. Work through it at your pace: free days = 2–3 units, busy days = one. Check in every Sunday."}</p>
 
       {[1, 2, 3, 4].map((w) => {
         const wk = WEEKS[w];

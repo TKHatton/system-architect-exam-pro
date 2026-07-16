@@ -58,7 +58,7 @@ export default function Results({ result, questions, isExam, isFreeAssessment, o
         <div className="row" style={{ marginTop: 28, justifyContent: "center", gap: 16 }}>
           <button className="btn ghost" onClick={onDone}>Back to dashboard</button>
           <button className="btn" onClick={onUpgrade} style={{ background: "var(--accent)", color: "#fff" }}>
-            Unlock Full Access — $67
+            Unlock Full Access — $47
           </button>
         </div>
       </div>
